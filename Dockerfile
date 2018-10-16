@@ -1,9 +1,10 @@
 FROM postgres:10.5-alpine as donar
+ENV PGDATA=/pgdata
 ENV POSTGRES_PASSWORD='test123'
 ENV POSTGRES_USER='postgres'
 ENV POSTGRES_DB='foo'
 EXPOSE 5432:5432
-RUN usr/local/bin/docker-entrypoint.sh
+RUN /docker-entrypoint.sh --help
 
 
 FROM debian:stretch-slim as build_tools
@@ -25,9 +26,15 @@ RUN pwd; \
     cd flyway-5.2.0; \
     pwd; \
     ls -l; \
-    sh ./flyway -url=jdbc:postgresql://donar:5432/optins -user='postgres' -password='test123' -schemas='bar' migrate; \
+    sh ./flyway -url=jdbc:postgresql://localhost:5432/optins -user='postgres' -password='test123' -schemas='bar' migrate; \
 
-
+FROM postgres:10.5-alpine
+ENV PGDATA=/pgdata
+ENV POSTGRES_PASSWORD='test123'
+ENV POSTGRES_USER='postgres'
+ENV POSTGRES_DB='foo'
+EXPOSE 5432:5432
+COPY --chown=postgres:postgres --from=donor /pgdata /pgdata
 
 
 
